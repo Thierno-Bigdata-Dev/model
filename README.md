@@ -2,7 +2,7 @@
 
 Ce projet implémente un système intelligent d'aide à la décision pour prédire la solvabilité de clients demandant un crédit bancaire (1 = Solvable, 0 = Non solvable), en se basant sur le jeu de données réel **German Credit de l'UCI**.
 
-Le projet est conçu de façon modulaire en respectant l'architecture **MVC (Modèle-Vue-Contrôleur)** et intègre le suivi d'expériences avec **MLflow** et un modèle d'apprentissage profond avec **TensorFlow/Keras**.
+Le projet est conçu de façon modulaire en respectant l'architecture **MVC (Modèle-Vue-Contrôleur)** et intègre le suivi d'expériences avec **MLflow** et des algorithmes d'apprentissage automatique classiques avec **Scikit-Learn**.
 
 ---
 
@@ -30,7 +30,7 @@ Projet1/
 ├── model/                   # --- COUCHE MODÈLE (M) ---
 │   ├── preprocessing.py     # Pipeline d'encodage (LabelEncoder) & normalisation (StandardScaler)
 │   ├── evaluate.py          # Calcul des scores et tracé des matrices de confusion
-│   ├── save_model.py        # Module de sauvegarde dynamique (PKL pour Sklearn, Keras pour NN)
+│   ├── save_model.py        # Module de sauvegarde des artefacts (modèles, scalers, encodeurs)
 │   ├── train.py             # Script principal d'entraînement et tracking MLflow
 │   ├── best_credit_model.pkl# Fichier du meilleur modèle sauvegardé en production
 │   ├── encoders.pkl         # Encodeurs entraînés sauvegardés
@@ -45,8 +45,7 @@ Projet1/
     ├── app.py               # Application web Streamlit principale
     ├── components.py        # Éléments graphiques (bannière, formulaires, onglets)
     ├── cm_regression_logistique.png
-    ├── cm_arbre_de_decision.png
-    └── cm_reseau_de_neurones.png
+    └── cm_arbre_de_decision.png
 ```
 
 ---
@@ -66,7 +65,7 @@ python download_uci_data.py
 ```
 
 ### 3. Entraînement et évaluation des modèles
-Lancez l'entraînement des modèles (Régression Logistique, Arbre de Décision et Réseau de Neurones). Le script va évaluer les performances, logger les résultats dans **MLflow** et enregistrer le meilleur modèle en production :
+Lance l'entraînement des modèles (Régression Logistique et Arbre de Décision). Le script va évaluer les performances, logger les résultats dans **MLflow** et enregistrer le meilleur modèle en production :
 ```bash
 cd model
 python train.py
@@ -88,7 +87,6 @@ Le script d'entraînement choisit automatiquement le modèle ayant le meilleur *
 | Modèle | Précision (Accuracy) | F1-Score (Solvable) | Technologie | Statut |
 | :--- | :---: | :---: | :---: | :---: |
 | **Arbre de Décision** | **94 %** | **0.9434** | Scikit-Learn | **Meilleur Modèle (Actif)** |
-| **Réseau de Neurones (MLP)** | **93 %** | **0.9300** | TensorFlow / Keras | Alternative |
 | **Régression Logistique** | **80 %** | **0.8100** | Scikit-Learn | Ligne de base |
 
 ---

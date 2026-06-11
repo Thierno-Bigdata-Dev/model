@@ -1,6 +1,5 @@
 import os
 import sys
-# pyrefly: ignore [missing-import]
 import streamlit as st
 
 # Résolution robuste des chemins pour importer le contrôleur et les composants
@@ -8,7 +7,6 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 sys.path.append(os.path.join(project_root, 'controller'))
 
-# pyrefly: ignore [missing-import]
 import pipeline
 import predict
 import importlib
@@ -42,8 +40,7 @@ model_choice = st.selectbox(
     options=[
         "Modèle Automatique (Meilleur)",
         "Régression Logistique",
-        "Arbre de Décision",
-        "Réseau de Neurones Artificiels"
+        "Arbre de Décision"
     ],
     help="Sélectionnez le modèle qui effectuera la prédiction."
 )

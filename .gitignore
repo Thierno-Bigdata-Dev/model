@@ -22,3 +22,5 @@ ENV/
 # Project specific ignores
 mlruns/
 .DS_Store
+~$*.pptx
+

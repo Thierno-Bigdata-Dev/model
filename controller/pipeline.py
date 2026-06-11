@@ -1,6 +1,5 @@
 import os
 import json
-# pyrefly: ignore [missing-import]
 import joblib
 import pandas as pd
 import numpy as np
@@ -29,22 +28,13 @@ class CreditPredictionPipeline:
             self.model_name = "Arbre de Decision"
             self.model_type = "sklearn"
             model_filename = "arbre_de_decision.pkl"
-        elif model_choice == "Réseau de Neurones Artificiels":
-            self.model_name = "Reseau de Neurones"
-            self.model_type = "keras"
-            model_filename = "reseau_de_neurones.keras"
         else:  # "Modèle Automatique" (Recommande)
             self.model_name = self.metadata['best_model_name']
-            self.model_type = "keras" if self.metadata['best_model_filename'] == "reseau_de_neurones" else "sklearn"
-            model_filename = f"{self.metadata['best_model_filename']}.keras" if self.model_type == "keras" else f"{self.metadata['best_model_filename']}.pkl"
+            model_filename = f"{self.metadata['best_model_filename']}.pkl"
             
         # 4. Chargement du modèle sélectionné
         model_path = os.path.join(self.model_dir, model_filename)
-        if self.model_type == 'keras':
-            import tensorflow as tf
-            self.model = tf.keras.models.load_model(model_path)
-        else:
-            self.model = joblib.load(model_path)
+        self.model = joblib.load(model_path)
             
     def preprocess_input(self, raw_input_df):
         """
@@ -67,14 +57,10 @@ class CreditPredictionPipeline:
         """
         processed_df = self.preprocess_input(raw_input_df)
         
-        if self.model_type == 'keras':
-            prob = float(self.model.predict(processed_df, verbose=0)[0][0])
-            prediction = int(prob > 0.5)
+        prediction = int(self.model.predict(processed_df)[0])
+        if hasattr(self.model, 'predict_proba'):
+            prob = float(self.model.predict_proba(processed_df)[0][1])
         else:
-            prediction = int(self.model.predict(processed_df)[0])
-            if hasattr(self.model, 'predict_proba'):
-                prob = float(self.model.predict_proba(processed_df)[0][1])
-            else:
-                prob = None
+            prob = None
                 
         return prediction, prob

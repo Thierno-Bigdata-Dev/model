@@ -1,5 +1,4 @@
 import os
-# pyrefly: ignore [missing-import]
 import streamlit as st
 
 def render_header():
@@ -83,10 +82,9 @@ def render_model_evaluation_tabs():
     st.subheader("📊 Comparaison et Évaluation des Modèles")
     st.markdown("Ces graphiques (générés durant la phase d'entraînement) montrent les erreurs et réussites de chaque modèle (matrice de confusion) :")
     
-    tab1, tab2, tab3 = st.tabs([
+    tab1, tab2 = st.tabs([
         "Régression Logistique", 
-        "Arbre de Décision", 
-        "Réseau de Neurones (Keras)"
+        "Arbre de Décision"
     ])
     
     with tab1:
@@ -102,13 +100,6 @@ def render_model_evaluation_tabs():
             st.image(img_path, use_container_width=True)
         else:
             st.warning("Matrice de confusion introuvable pour l'Arbre de Décision.")
-            
-    with tab3:
-        img_path = get_image_path("cm_reseau_de_neurones.png")
-        if img_path:
-            st.image(img_path, use_container_width=True)
-        else:
-            st.warning("Matrice de confusion introuvable pour le Réseau de Neurones.")
 
 def get_image_path(filename):
     """Recherche de manière robuste le chemin de l'image de la matrice de confusion."""

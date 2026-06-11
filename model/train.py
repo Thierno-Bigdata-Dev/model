@@ -8,18 +8,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 
-# Importation de TensorFlow pour le réseau de neurones
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
-
 # Importation de MLflow pour le suivi des expériences
-# pyrefly: ignore [missing-import]
 import mlflow
-# pyrefly: ignore [missing-import]
 import mlflow.sklearn
-# pyrefly: ignore [missing-import]
-import mlflow.tensorflow
 
 # Importations de nos modules personnalisés
 from preprocessing import fit_preprocess, transform_preprocess
@@ -32,17 +23,7 @@ elif os.path.exists('../credit_data.csv'):
 else:
     raise FileNotFoundError("Fichier 'credit_data.csv' introuvable. Veuillez d'abord lancer le script de téléchargement.")
 
-def create_nn_model(input_dim):
-    """Crée un modèle de Réseau de Neurones Artificiels avec Keras."""
-    model = Sequential([
-        # pyrefly: ignore [unexpected-keyword]
-        Dense(16, activation='relu', input_dim=input_dim),
-        Dropout(0.2),
-        Dense(8, activation='relu'),
-        Dense(1, activation='sigmoid')
-    ])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    return model
+
 
 def main():
     # 1. Chargement des données
@@ -122,51 +103,22 @@ def main():
             best_model = tree_model
             best_model_name = "Arbre de Decision"
 
-    # --- MODÈLE 3 : Réseau de Neurones (TensorFlow / Keras) ---
-    print("\nEntraînement du Réseau de Neurones...")
-    with mlflow.start_run(run_name="Neural_Network"):
-        nn_model = create_nn_model(X_train.shape[1])
-        
-        # Entraînement
-        history = nn_model.fit(
-            X_train, y_train, 
-            epochs=50, 
-            batch_size=32, 
-            validation_split=0.1, 
-            verbose=0
-        )
-        
-        # Prédiction (sigmoid donne des probabilités, on seuille à 0.5)
-        y_pred_prob = nn_model.predict(X_test)
-        y_pred = (y_pred_prob > 0.5).astype(int).flatten()
-        
-        metrics = evaluate_model(y_test, y_pred, "Reseau de Neurones")
-        
-        # Logger dans MLflow
-        mlflow.log_param("model_type", "Keras_Sequential")
-        mlflow.log_param("epochs", 50)
-        mlflow.log_param("batch_size", 32)
-        mlflow.log_metrics(metrics)
-        mlflow.tensorflow.log_model(nn_model, "model")
-        
-        if metrics['f1_solvable'] > best_f1:
-            best_f1 = metrics['f1_solvable']
-            best_model = nn_model
-            best_model_name = "Reseau de Neurones"
+
 
     # 4. Sauvegarde de tous les modèles pour permettre la comparaison dans l'interface
     print(f"\nLe meilleur modèle est : {best_model_name} (F1-Score: {best_f1:.4f})")
     print("Sauvegarde de tous les modèles...")
-    save_model_assets(log_model, "Regression Logistique", "regression_logistique", encoders, scaler)
-    save_model_assets(tree_model, "Arbre de Decision", "arbre_de_decision", encoders, scaler)
-    save_model_assets(nn_model, "Reseau de Neurones", "reseau_de_neurones", encoders, scaler)
+    
+    # Détermination du dossier 'model' de façon robuste basée sur l'emplacement de train.py
+    model_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    save_model_assets(log_model, "Regression Logistique", "regression_logistique", encoders, scaler, output_dir=model_dir)
+    save_model_assets(tree_model, "Arbre de Decision", "arbre_de_decision", encoders, scaler, output_dir=model_dir)
     
     # Détermination du nom de fichier du meilleur modèle
     best_model_filename = "arbre_de_decision"
     if best_model_name == "Regression Logistique":
         best_model_filename = "regression_logistique"
-    elif best_model_name == "Reseau de Neurones":
-        best_model_filename = "reseau_de_neurones"
         
     # Enregistrement des métadonnées du meilleur modèle
     import json
@@ -175,13 +127,7 @@ def main():
         'best_model_filename': best_model_filename
     }
     
-    actual_dir = '.'
-    if not os.path.exists('model_metadata.json') and os.path.exists('../model'):
-        actual_dir = '../model'
-    elif os.path.exists('model'):
-        actual_dir = 'model'
-        
-    metadata_path = os.path.join(actual_dir, 'model_metadata.json')
+    metadata_path = os.path.join(model_dir, 'model_metadata.json')
     with open(metadata_path, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, indent=4)
         

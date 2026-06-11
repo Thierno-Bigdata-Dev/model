@@ -4,7 +4,7 @@ import os
 
 def save_model_assets(model, model_name, filename_prefix, encoders, scaler, output_dir='.'):
     """
-    Sauvegarde un modèle spécifique (Keras ou Scikit-Learn) sous un nom de fichier préfixé,
+    Sauvegarde un modèle spécifique (Scikit-Learn) sous un nom de fichier préfixé,
     et sauvegarde également les encodeurs et le scaler.
     """
     actual_dir = output_dir
